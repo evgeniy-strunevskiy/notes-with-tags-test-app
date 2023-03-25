@@ -144,4 +144,13 @@ address {
 .App {
   height: 100%;
   background-color: var(--color-blue);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

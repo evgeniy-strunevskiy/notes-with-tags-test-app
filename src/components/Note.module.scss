@@ -1,0 +1,66 @@
+.note {
+  max-width: 500px;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--color-white);
+  padding: 30px;
+  margin-right: 30px;
+  margin-bottom: 30px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+  
+  &:hover {
+    box-shadow: 0px 20px 35px rgba(0, 0, 0, 0.6);
+    transform: translateY(-5px);
+  }
+}
+
+.note__title {
+  text-align: left;
+  font-weight: bold;
+  font-size: 24px;
+  padding-bottom: 10px;
+}
+
+.note__text {
+  text-align: left;
+  font-size: 16px;
+}
+
+.note__content {
+  display: flex;
+  flex-direction: column;
+}
+
+.note__buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.note__delete {
+  width: 20px;
+  height: 20px;  
+  color: var(--color-Moccasin);
+  transition: 0.2s ease-in-out;
+  &:hover {
+    color: var(--color-salmon);
+  }
+  &:active {
+    color: var(--color-Khaki);
+  }
+}
+.note__edit {
+  width: 20px;
+  height: 20px;  
+  color: var(--color-Moccasin);
+  transition: 0.2s ease-in-out;
+  &:hover {
+    color: var(--color-salmon);
+  }
+  &:active {
+    color: var(--color-Khaki);
+  }
+}
