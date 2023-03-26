@@ -1,17 +1,28 @@
 import React, { useState } from "react";
 import "./App.scss";
 import { NoteForm } from "./components/NoteForm";
+import { NoteFormEdit } from "./components/NoteFormEdit";
 import { Modal } from "./components/UI/modal/Modal";
 import { Notes } from "./pages/Notes";
 
-
-
 function App() {
+  const [editModal, setEditModal] = useState<boolean>(false);
+  const [idEditableNote, setIdEditableNote] = useState<number>();
   const [modal, setModal] = useState<boolean>(false);
 
   function toggleModal(modal: boolean) {
     setModal(modal);
   }
+
+  function getIdEditableNote(id: number) {
+    setIdEditableNote(id);
+  }
+
+  function toggleEditModal(modal: boolean) {
+    setEditModal(modal);
+  }
+
+  console.log(modal);
 
   return (
     <div className="App">
@@ -24,8 +35,22 @@ function App() {
             <NoteForm setVisible={toggleModal} />
           </Modal>
         )}
-
-        <Notes />
+        {idEditableNote && (
+          <>
+            {editModal && idEditableNote && (
+              <Modal visible={editModal} setVisible={setEditModal}>
+                <NoteFormEdit
+                  idEditableNote={idEditableNote!}
+                  setVisible={toggleEditModal}
+                />
+              </Modal>
+            )}
+          </>
+        )}
+        <Notes
+          setEditModal={setEditModal}
+          getIdEditableNote={getIdEditableNote}
+        />
       </div>
     </div>
   );

@@ -21,6 +21,8 @@ export const Modal: FC<ModalPropsTypes> = ({
     setVisible(false);
   };
 
+  console.log('render');
+
   return (
     <div
       className={classNames(styles.modal, { modal__active: visible })}
