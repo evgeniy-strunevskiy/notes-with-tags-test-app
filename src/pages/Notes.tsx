@@ -5,15 +5,21 @@ import classNames from "classnames";
 import { Note } from "../components/Note";
 
 export const Notes = () => {
-  const { data: notes } = useGetNotesQuery();
+  const { data: notes, isLoading } = useGetNotesQuery();
 
   return (
-      <ul className={classNames(styles.notes)}>
-        {notes?.map((note) => (
-          <li className={classNames(styles.notes__item)} key={note.id}>
-            <Note note={note} />
-          </li>
-        ))}
-      </ul>
+    <>
+      {isLoading ? (
+        <h1>Идет загрузка...</h1>
+      ) : (
+        <ul className={classNames(styles.notes)}>
+          {notes?.map((note) => (
+            <li className={classNames(styles.notes__item)} key={note.id}>
+              <Note note={note} />
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
   );
 };
