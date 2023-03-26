@@ -12,6 +12,7 @@
   --color-salmon: #daad86;
   --color-Khaki: #bc986a;
   --color-Moccasin: #fbeec1;
+  --color-black: #000000;
 }
 
 /*Обнуление*/
@@ -146,10 +147,25 @@ address {
   background-color: var(--color-blue);
   display: flex;
   justify-content: center;
-  align-items: center;
 }
 
 .wrapper {
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
+  gap: 50px;
+  padding-top: 50px;
+}
+
+.wrapper__btn {
+  background-color: var(--color-Moccasin);
+  padding: 10px;
+  border-radius: 10px;
+  transition: 0.2s ease-in-out;
+  &:hover {
+    background-color: var(--color-salmon);
+  }
+  &:active   {
+    background-color: var(--color-Khaki);
+  }
 }
