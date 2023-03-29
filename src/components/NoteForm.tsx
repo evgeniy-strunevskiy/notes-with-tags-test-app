@@ -1,18 +1,20 @@
 import React, { FC, useState } from "react";
-import {
-  useAddNoteMutation,
-} from "../api/notesApi";
+import { useAddNoteMutation } from "../api/notesApi";
 import classnames from "classnames";
 import styles from "./NoteForm.module.scss";
+import { useAddTagsMutation, useGetTagsQuery } from "../api/tagsApi";
 
+// const text = note.text.replace(/[^a-zа-яё0-9\s]/gi, " ");
 interface INoteFormProps {
   setVisible(modal: boolean): void;
 }
 
 export const NoteForm: FC<INoteFormProps> = ({ setVisible }) => {
   const [addNote] = useAddNoteMutation();
+  const [addTags] = useAddTagsMutation();
+  const { data: oldTags } = useGetTagsQuery();
 
-  const [note, setNote] = useState<{ title: string; text: string }>({
+  const [note, setNote] = useState<{ title: string; text: string; }>({
     title: "",
     text: "",
   });
@@ -21,14 +23,34 @@ export const NoteForm: FC<INoteFormProps> = ({ setVisible }) => {
     e.preventDefault();
 
     if (note.text.length > 0 && note.title.length > 0) {
-      const text = note.text.replace(/[^a-zа-яё0-9\s]/gi, " ");
+      const tags = note.text.match(/#\S*/gi);
+      if (tags) {
+        const tagsArray = tags?.map((tag) => ({
+          id: Math.random(),
+          text: tag,
+        }));
+
+        const newTags = oldTags
+          ? tagsArray.filter((tag) =>
+              oldTags.every((oldTag) => oldTag.text !== tag.text)
+            )
+          : tagsArray;
+        if (newTags) {
+          await Promise.all(
+            newTags!.map(async (value) => {
+              await addTags(value);
+            })
+          );
+        }
+      }
 
       const newNote = {
+        id: Math.random(),
         title: note.title,
-        text,
-        id: Date.now(),
+        text: note.text,
+        tags: tags || undefined
       };
-     await addNote(newNote);
+      await addNote(newNote);
       setNote({ title: "", text: "" });
       setVisible(false);
     }

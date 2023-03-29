@@ -14,9 +14,10 @@ export const NoteFormEdit: FC<INoteFormEditProps> = ({
 }) => {
   const [editNote] = useUpdateNoteMutation();
   const { data: editableNote } = useGetNoteQuery(idEditableNote);
-  const [note, setNote] = useState<{ title: string; text: string }>({
+  const [note, setNote] = useState<{ title: string; text: string, tags: string[] | undefined }>({
     title: "",
     text: "",
+    tags: undefined
   });
 
   const addNewNote = async (e: React.FormEvent) => {
@@ -29,9 +30,10 @@ export const NoteFormEdit: FC<INoteFormEditProps> = ({
         title: note.title,
         text,
         id: editableNote!.id,
+        tags: editableNote?.tags
       };
       await editNote(newNote);
-      setNote({ title: "", text: "" });
+      setNote({ title: "", text: "", tags: undefined});
       setVisible(false);
     }
   };
@@ -40,6 +42,7 @@ export const NoteFormEdit: FC<INoteFormEditProps> = ({
     setNote({
       title: editableNote?.title || "",
       text: editableNote?.text || "",
+      tags: editableNote?.tags
     });
   }, [editableNote]);
 

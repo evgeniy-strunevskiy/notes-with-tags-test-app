@@ -21,7 +21,6 @@ export const Modal: FC<ModalPropsTypes> = ({
     setVisible(false);
   };
 
-  console.log('render');
 
   return (
     <div

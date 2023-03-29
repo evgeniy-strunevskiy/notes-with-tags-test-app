@@ -1,5 +1,6 @@
- export interface INote {
-  id: number,
-  title: string,
-  text: string, 
+export interface INote {
+  id: number;
+  title: string;
+  text: string;
+  tags: string[] | undefined;
 }

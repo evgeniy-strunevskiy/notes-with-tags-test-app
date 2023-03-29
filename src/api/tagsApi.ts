@@ -1,6 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { ITag } from "../types/tagTypes";
-
 export const tagsApi = createApi({
   reducerPath: "tagsApi",
   tagTypes: ["Tags"],
@@ -10,12 +9,14 @@ export const tagsApi = createApi({
       query: () => `tags`,
       providesTags: (result) => ["Tags"],
     }),
-    addTags: builder.mutation<ITag, ITag>({
-      query: (body) => ({
+    addTags: builder.mutation<ITag[], ITag>({
+      query: (body) => (
+        {
         url: `tags`,
         method: "POST",
-        body,
-      }),
+        body: body
+      }
+      ),
       invalidatesTags: (result) => ["Tags"],
     }),
     updateTags: builder.mutation<ITag, ITag>({
@@ -26,11 +27,13 @@ export const tagsApi = createApi({
       }),
       invalidatesTags: (result) => ["Tags"],
     }),
-    deleteTags: builder.mutation<ITag, number>({
-      query: (id) => ({
-        url: `tags/${id}`,
-        method: "DELETE",
-      }),
+    deleteTags: builder.mutation({
+      query(id) {
+        return {
+          url: `tags/${id}`,
+          method: 'DELETE',
+        }
+      },
       invalidatesTags: (result) => ["Tags"],
     }),
   }),

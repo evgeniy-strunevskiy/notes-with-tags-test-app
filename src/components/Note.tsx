@@ -10,13 +10,21 @@ interface INoteTypes {
   note: INote;
   setEditModal: (modal: boolean) => void;
   getIdEditableNote: (id: number) => void;
+  removeTagsNote: (tags: string[], note: INote) => void;
 }
 
-export const Note: FC<INoteTypes> = ({ note, setEditModal, getIdEditableNote }) => {
+export const Note: FC<INoteTypes> = ({
+  note,
+  setEditModal,
+  getIdEditableNote,
+  removeTagsNote
+}) => {
   const [deleteNote] = useDeleteNoteMutation();
-  
+
   const handleDeleteNote = async (id: number) => {
-    await deleteNote(id);
+    const tags = note.text.match(/#\S*/gi);
+    if(tags) removeTagsNote(tags, note)
+    await deleteNote(id)
   };
 
   const handleEdit = () => {
