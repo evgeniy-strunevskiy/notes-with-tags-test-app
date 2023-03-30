@@ -54,32 +54,36 @@ export const NoteFormEdit: FC<INoteFormEditProps> = ({
         (tag) => !namesOfEditedTags.includes(tag)
       );
 
-      const listUniqueNameOfTagsRemovedFromNote =
+      const uniqueNamesOfTagsRemovedFromNote =
         namesOfTagsRemovedFromNote?.filter((tagOfRemovedFromNote) =>
           notesWithoutEditableNote?.every((note) =>
-            note.tags?.every((tag) => tag !== tagOfRemovedFromNote)
-          )
-        );
+            note.tags?.every((tag) => tag !== tagOfRemovedFromNote)));
 
       listUniqueTagsRemovedFromNote = tagsList?.filter((tag) =>
-        listUniqueNameOfTagsRemovedFromNote?.includes(tag.text)
+        uniqueNamesOfTagsRemovedFromNote?.includes(tag.text)
       );
 
-      const namesOfTagsAddedToNote = note?.tags?.filter((tag) =>
-        namesOfEditedTags.includes(tag)
+      //------------------------------------
+
+      const namesOfTagsAddedToNote = namesOfEditedTags.filter((tag) =>
+      !note?.tags?.includes(tag)
       );
 
+      
       const listTagsAddedToNote = namesOfTagsAddedToNote?.map((tag) => ({
         id: Math.random(),
         text: tag,
       }));
-
+      
+      
       listUniqueTagsAddedToNote = listTagsAddedToNote?.filter(
         (tagAddedToNote) =>
-          tagsList?.every((tag) => tagAddedToNote.text !== tag.text)
-      );
-    }
-
+        tagsList?.every((tag) => tagAddedToNote.text !== tag.text)
+        );
+      }
+      
+    console.log(listUniqueTagsAddedToNote)
+      
     if (listUniqueTagsRemovedFromNote) {
       await Promise.all(
         listUniqueTagsRemovedFromNote?.map(async (TagToBeRemove) => {
