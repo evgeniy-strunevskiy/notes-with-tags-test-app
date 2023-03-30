@@ -5,18 +5,19 @@ import { NoteFormEdit } from "./components/NoteFormEdit";
 import { Tags } from "./components/Tags";
 import { Modal } from "./components/UI/modal/Modal";
 import { Notes } from "./pages/Notes";
+import { INote } from "./types/noteTypes";
 
 function App() {
   const [editModal, setEditModal] = useState<boolean>(false);
-  const [idEditableNote, setIdEditableNote] = useState<number>();
+  const [editableNote, setEditableNote] = useState<INote>();
   const [modal, setModal] = useState<boolean>(false);
 
   function toggleModal(modal: boolean) {
     setModal(modal);
   }
 
-  function getIdEditableNote(id: number) {
-    setIdEditableNote(id);
+  function getEditableNote(note: INote) {
+    setEditableNote(note);
   }
 
   function toggleEditModal(modal: boolean) {
@@ -35,21 +36,17 @@ function App() {
             <NoteForm setVisible={toggleModal} />
           </Modal>
         )}
-        {idEditableNote && (
-          <>
-            {editModal && idEditableNote && (
-              <Modal visible={editModal} setVisible={setEditModal}>
-                <NoteFormEdit
-                  idEditableNote={idEditableNote!}
-                  setVisible={toggleEditModal}
-                />
-              </Modal>
-            )}
-          </>
+        {editModal && (
+          <Modal visible={editModal} setVisible={setEditModal}>
+            <NoteFormEdit
+              noteToBeEdited={editableNote!}
+              setVisible={toggleEditModal}
+            />
+          </Modal>
         )}
         <Notes
           setEditModal={setEditModal}
-          getIdEditableNote={getIdEditableNote}
+          getEditableNote={getEditableNote}
         />
       </div>
     </div>

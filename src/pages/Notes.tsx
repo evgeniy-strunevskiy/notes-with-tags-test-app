@@ -7,36 +7,41 @@ import { useDeleteTagsMutation, useGetTagsQuery } from "../api/tagsApi";
 import { INote } from "./../types/noteTypes";
 
 interface INotesProps {
-  getIdEditableNote: (id: number) => void;
+  getEditableNote: (note: INote) => void;
   setEditModal: (modal: boolean) => void;
 }
 
-export const Notes: FC<INotesProps> = ({ getIdEditableNote, setEditModal }) => {
-  const [removeTags] = useDeleteTagsMutation();
-  const { data: notes, isLoading} = useGetNotesQuery();
-  const {data: oldTags} = useGetTagsQuery()
+export const Notes: FC<INotesProps> = ({ getEditableNote, setEditModal }) => {
+  const [removeTagFromTagList] = useDeleteTagsMutation();
+  const { data: notesList, isLoading } = useGetNotesQuery();
+  const { data: tagsList } = useGetTagsQuery();
 
-  const updateTags = async (wasteTags: string[], note: INote) => {
-    const getUpdateNotes = notes?.filter(element => element.id !== note.id);
-    
-    const deleteTags = wasteTags?.filter((removeTag) =>
-    getUpdateNotes?.every((note) => note.tags?.every((tag) => tag !== removeTag))
-    );
-    const stayingTags = oldTags?.filter((tag) =>
-      deleteTags.every((remove) => remove === tag.text)
+  const updateTagsList = async ( removedNote: INote) => {
+
+    //Нужно разобраться как здесь получить уже обновленный список заметок
+    const notesWithoutRemovedNote = notesList?.filter((note) => note.id !== removedNote.id);
+
+    const namesOfUniqueTagsToBeRemove = removedNote.tags?.filter((nameOfTagOfRemovedNote) =>
+      notesWithoutRemovedNote?.every((note) =>
+        note.tags?.every((tag) => tag !== nameOfTagOfRemovedNote)
+      )
     );
 
-    if (stayingTags) {
+    const listTagsToBeRemove = tagsList?.filter((tag) =>
+      namesOfUniqueTagsToBeRemove?.includes(tag.text)
+    );
+
+    if (listTagsToBeRemove) {
       await Promise.all(
-        stayingTags?.map(async (value) => {
-          await removeTags(value.id);
-        })  
+        listTagsToBeRemove?.map(async (TagToBeRemove) => {
+          await removeTagFromTagList(TagToBeRemove.id);
+        })
       );
     }
   };
 
-  const removeTagsNote = (tags: string[], note: INote) => {
-    updateTags(tags, note)
+  const removeTagsOfRemovedNote = (removedNote: INote) => {
+    updateTagsList(removedNote);
   };
 
   return (
@@ -45,12 +50,12 @@ export const Notes: FC<INotesProps> = ({ getIdEditableNote, setEditModal }) => {
         <h1>Идет загрузка...</h1>
       ) : (
         <ul className={classNames(styles.notes)}>
-          {notes?.map((note) => (
+          {notesList?.map((note) => (
             <li className={classNames(styles.notes__item)} key={note.id}>
               <Note
-                removeTagsNote={removeTagsNote}
+                removeTagsOfRemovedNote={removeTagsOfRemovedNote}
                 setEditModal={setEditModal}
-                getIdEditableNote={getIdEditableNote}
+                getEditableNote={getEditableNote}
                 note={note}
               />
             </li>

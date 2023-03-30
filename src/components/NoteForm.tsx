@@ -3,6 +3,7 @@ import { useAddNoteMutation } from "../api/notesApi";
 import classnames from "classnames";
 import styles from "./NoteForm.module.scss";
 import { useAddTagsMutation, useGetTagsQuery } from "../api/tagsApi";
+import { ITag } from "../types/tagTypes";
 
 // const text = note.text.replace(/[^a-zа-яё0-9\s]/gi, " ");
 interface INoteFormProps {
@@ -12,53 +13,56 @@ interface INoteFormProps {
 export const NoteForm: FC<INoteFormProps> = ({ setVisible }) => {
   const [addNote] = useAddNoteMutation();
   const [addTags] = useAddTagsMutation();
-  const { data: oldTags } = useGetTagsQuery();
-
-  const [note, setNote] = useState<{ title: string; text: string; }>({
+  const { data: tagsList } = useGetTagsQuery();
+  const [note, setNote] = useState<{ title: string; text: string }>({
     title: "",
     text: "",
   });
 
-  const addNewNote = async (e: React.FormEvent) => {
+  const handleClickButtonForm = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (note.text.length > 0 && note.title.length > 0) {
-      const tags = note.text.match(/#\S*/gi);
-      if (tags) {
-        const tagsArray = tags?.map((tag) => ({
-          id: Math.random(),
-          text: tag,
-        }));
+    const namesOfNewTags = note.text.match(/#\S*/gi);
 
-        const newTags = oldTags
-          ? tagsArray.filter((tag) =>
-              oldTags.every((oldTag) => oldTag.text !== tag.text)
-            )
-          : tagsArray;
-        if (newTags) {
-          await Promise.all(
-            newTags!.map(async (value) => {
-              await addTags(value);
-            })
-          );
-        }
-      }
+    let newUniqueTagsList: ITag[] = [];
 
-      const newNote = {
+    if (namesOfNewTags) {
+      const newTagsList = namesOfNewTags.map((tag) => ({
         id: Math.random(),
-        title: note.title,
-        text: note.text,
-        tags: tags || undefined
-      };
-      await addNote(newNote);
-      setNote({ title: "", text: "" });
-      setVisible(false);
+        text: tag,
+      }));
+
+      newUniqueTagsList = tagsList
+        ? newTagsList.filter((newTag) =>
+            tagsList.every((tag) => tag.text !== newTag.text)
+          )
+        : newTagsList;
     }
+
+    if (newUniqueTagsList) {
+      await Promise.all(
+        newUniqueTagsList.map(async (newUniqueTag) => {
+          await addTags(newUniqueTag);
+        })
+      );
+    }
+
+    const newNote = {
+      id: Math.random(),
+      title: note.title,
+      text: note.text,
+      tags: namesOfNewTags || undefined,
+    };
+
+    await addNote(newNote);
+    setNote({ title: "", text: "" });
+    setVisible(false);
   };
 
   return (
-    <form onSubmit={addNewNote} className={classnames(styles.form)}>
+    <form onSubmit={handleClickButtonForm} className={classnames(styles.form)}>
       <input
+        required
         className={classnames(styles.form__input)}
         type="text"
         value={note.title}
@@ -66,12 +70,17 @@ export const NoteForm: FC<INoteFormProps> = ({ setVisible }) => {
         placeholder="Название заметки..."
       />
       <textarea
+        required
         className={classnames(styles.form__textarea)}
         value={note.text}
         onChange={(e) => setNote({ ...note, text: e.target.value })}
         placeholder="Описание заметки..."
       />
-      <button className={classnames(styles.form__button)} type="submit">
+      <button
+        onSubmit={handleClickButtonForm}
+        className={classnames(styles.form__button)}
+        type="submit"
+      >
         Создать пост
       </button>
     </form>

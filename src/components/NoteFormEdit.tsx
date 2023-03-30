@@ -1,65 +1,133 @@
-import React, { FC, useEffect, useState } from "react";
-import { useGetNoteQuery, useUpdateNoteMutation } from "../api/notesApi";
+import React, { FC, useState } from "react";
+import { useGetNotesQuery, useUpdateNoteMutation } from "../api/notesApi";
 import classnames from "classnames";
 import styles from "./NoteForm.module.scss";
+import {
+  useAddTagsMutation,
+  useDeleteTagsMutation,
+  useGetTagsQuery,
+} from "../api/tagsApi";
+import { INote } from "./../types/noteTypes";
+import { ITag } from "./../types/tagTypes";
 
 interface INoteFormEditProps {
   setVisible(modal: boolean): void;
-  idEditableNote: number;
+  noteToBeEdited: INote;
 }
 
 export const NoteFormEdit: FC<INoteFormEditProps> = ({
   setVisible,
-  idEditableNote,
+  noteToBeEdited: note,
 }) => {
+  const { data: notesList } = useGetNotesQuery();
   const [editNote] = useUpdateNoteMutation();
-  const { data: editableNote } = useGetNoteQuery(idEditableNote);
-  const [note, setNote] = useState<{ title: string; text: string, tags: string[] | undefined }>({
-    title: "",
-    text: "",
-    tags: undefined
-  });
+  const [removeTags] = useDeleteTagsMutation();
+  const { data: tagsList } = useGetTagsQuery();
+  const [addTags] = useAddTagsMutation();
+  const [editableNote, setEditableNote] = useState<{
+    title: string;
+    text: string;
+    tags: string[] | undefined;
+  }>({ title: note.title, text: note.text, tags: undefined });
 
-  const addNewNote = async (e: React.FormEvent) => {
+  const updateNote = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (note.text.length > 0 && note.title.length > 0) {
-      const text = note.text.replace(/[^a-zа-яё0-9\s]/gi, " ");
+    //Нужно сравнить старый список тегов и новый:
+    //Новые теги добавлены
+    //Какие теги удалены
+    //Какие теги остались
 
-      const newNote = {
-        title: note.title,
-        text,
-        id: editableNote!.id,
-        tags: editableNote?.tags
-      };
-      await editNote(newNote);
-      setNote({ title: "", text: "", tags: undefined});
-      setVisible(false);
+    //Разные id у тегов
+
+    const namesOfEditedTags = editableNote.text.match(/#\S*/gi);
+
+    let listUniqueTagsRemovedFromNote: ITag[] | undefined = [];
+    let listUniqueTagsAddedToNote: ITag[] | undefined = [];
+
+    if (namesOfEditedTags) {
+      const notesWithoutEditableNote = notesList?.filter(
+        (editedNote) => note!.id !== editedNote.id
+      );
+
+      const namesOfTagsRemovedFromNote = note?.tags?.filter(
+        (tag) => !namesOfEditedTags.includes(tag)
+      );
+
+      const listUniqueNameOfTagsRemovedFromNote =
+        namesOfTagsRemovedFromNote?.filter((tagOfRemovedFromNote) =>
+          notesWithoutEditableNote?.every((note) =>
+            note.tags?.every((tag) => tag !== tagOfRemovedFromNote)
+          )
+        );
+
+      listUniqueTagsRemovedFromNote = tagsList?.filter((tag) =>
+        listUniqueNameOfTagsRemovedFromNote?.includes(tag.text)
+      );
+
+      const namesOfTagsAddedToNote = note?.tags?.filter((tag) =>
+        namesOfEditedTags.includes(tag)
+      );
+
+      const listTagsAddedToNote = namesOfTagsAddedToNote?.map((tag) => ({
+        id: Math.random(),
+        text: tag,
+      }));
+
+      listUniqueTagsAddedToNote = listTagsAddedToNote?.filter(
+        (tagAddedToNote) =>
+          tagsList?.every((tag) => tagAddedToNote.text !== tag.text)
+      );
     }
-  };
 
-  useEffect(() => {
-    setNote({
-      title: editableNote?.title || "",
-      text: editableNote?.text || "",
-      tags: editableNote?.tags
-    });
-  }, [editableNote]);
+    if (listUniqueTagsRemovedFromNote) {
+      await Promise.all(
+        listUniqueTagsRemovedFromNote?.map(async (TagToBeRemove) => {
+          await removeTags(TagToBeRemove.id);
+        })
+      );
+    }
+
+    if (listUniqueTagsAddedToNote) {
+      await Promise.all(
+        listUniqueTagsAddedToNote!.map(async (newUniqueTag) => {
+          await addTags(newUniqueTag);
+        })
+      );
+    }
+
+    const editedNote = {
+      title: editableNote.title,
+      text: editableNote.text,
+      id: note!.id,
+      tags: namesOfEditedTags || undefined,
+    };
+
+    await editNote(editedNote);
+    setEditableNote({ title: "", text: "", tags: undefined });
+    setVisible(false);
+  };
 
   return (
     <>
-      <form onSubmit={addNewNote} className={classnames(styles.form)}>
+      <form onSubmit={updateNote} className={classnames(styles.form)}>
         <input
+          required
           className={classnames(styles.form__input)}
           type="text"
-          value={note.title}
-          onChange={(e) => setNote({ ...note, title: e.target.value })}
+          value={editableNote.title}
+          onChange={(e) =>
+            setEditableNote({ ...editableNote, title: e.target.value })
+          }
           placeholder="Название заметки..."
         />
         <textarea
+          required
           className={classnames(styles.form__textarea)}
-          value={note.text}
-          onChange={(e) => setNote({ ...note, text: e.target.value })}
+          value={editableNote.text}
+          onChange={(e) =>
+            setEditableNote({ ...editableNote, text: e.target.value })
+          }
           placeholder="Описание заметки..."
         />
         <button className={classnames(styles.form__button)} type="submit">

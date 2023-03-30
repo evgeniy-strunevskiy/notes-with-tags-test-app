@@ -9,28 +9,27 @@ import { useDeleteNoteMutation } from "../api/notesApi";
 interface INoteTypes {
   note: INote;
   setEditModal: (modal: boolean) => void;
-  getIdEditableNote: (id: number) => void;
-  removeTagsNote: (tags: string[], note: INote) => void;
+  getEditableNote: (note: INote) => void;
+  removeTagsOfRemovedNote: (note: INote) => void;
 }
 
 export const Note: FC<INoteTypes> = ({
   note,
   setEditModal,
-  getIdEditableNote,
-  removeTagsNote
+  getEditableNote,
+  removeTagsOfRemovedNote,
 }) => {
   const [deleteNote] = useDeleteNoteMutation();
 
-  const handleDeleteNote = async (id: number) => {
-    const tags = note.text.match(/#\S*/gi);
-    if(tags) removeTagsNote(tags, note)
-    await deleteNote(id)
+  const handleClickButtonDelete = async (id: number) => {
+    removeTagsOfRemovedNote(note);
+    await deleteNote(id);
   };
 
   const handleEdit = () => {
-    getIdEditableNote(note.id);
+    getEditableNote(note);
     setEditModal(true);
-  }
+  };
 
   return (
     <div className={classnames(styles.note)}>
@@ -45,7 +44,7 @@ export const Note: FC<INoteTypes> = ({
         />
         <MdDelete
           className={classnames(styles.note__delete)}
-          onClick={() => handleDeleteNote(note.id)}
+          onClick={() => handleClickButtonDelete(note.id)}
         />
       </div>
     </div>
