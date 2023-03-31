@@ -1,29 +1,27 @@
-import React from 'react'
-import { useGetNoteQuery, useGetNotesQuery } from '../api/notesApi';
-import { useGetTagsQuery } from '../api/tagsApi';
+import React, { FC } from "react";
+import { useGetTagsQuery } from "../api/tagsApi";
+import { Tag } from "./Tag";
+import styles from './Tags.module.scss';
+import classNames  from 'classnames';
 
-export const Tags = () => {
-  const { data: tags, isLoading } = useGetTagsQuery();
+interface ITagsProps {
+  getTagForFilter: (tag: string) => void;
+}
+
+export const Tags: FC<ITagsProps> = ({getTagForFilter}) => {
+  const { data: tagsList, isLoading } = useGetTagsQuery();
 
   return (
     <div className="">
-    {isLoading ? (
-      <h1>Идет загрузка...</h1>
-    ) : (
-      tags?.map((tag) => (
-        <span
-          style={{
-            background: "gray",
-            padding: 10,
-            marginRight: 10,
-            borderRadius: 10,
-          }}
-          key={tag.id}
-        >
-          {tag.text}
-        </span>
-      ))
-    )}
-  </div>
-  )
-}
+      {isLoading ? (
+        <h1>Идет загрузка...</h1>
+      ) : (
+        <ul className={classNames(styles.tags)}>
+          {tagsList?.map((tag) => (
+              <Tag key={tag.text} tag={tag} getTagForFilter={getTagForFilter}/>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
