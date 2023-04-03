@@ -3,7 +3,9 @@ import { useGetNotesQuery } from "../api/notesApi";
 import { useDeleteTagsMutation, useGetTagsQuery } from "../api/tagsApi";
 import { INote } from "./../types/noteTypes";
 import { Tags } from "../components/Tags";
-import { NotesList } from "../components/UI/modal/NotesList";
+import classNames from "classnames";
+import styles from './Notes.module.scss'
+import { NotesList } from "../components/NotesList";
 
 interface INotesProps {
   getEditableNote: (note: INote) => void;
@@ -11,14 +13,13 @@ interface INotesProps {
 }
 
 export const Notes: FC<INotesProps> = ({ getEditableNote, setEditModal }) => {
-  //Возможно лишний
   const [removeTagFromTagList] = useDeleteTagsMutation();
-  const { data: notesList, isLoading } = useGetNotesQuery();
-  const { data: tagsList, isLoading: isTagsLoading } = useGetTagsQuery();
+  const { data: tagsList, isLoading: isTagsLoading, isError: isTagError } = useGetTagsQuery();
+  const { data: notesList, isLoading , isError} = useGetNotesQuery();
   const [filterTag, setFilterTag] = useState<string | null>(null);
   const [processedNotes, setProcessedNotes] = useState<INote[]>()
+
   async function removeTagsOfRemovedNote(removedNote: INote) {
-    //Нужно разобраться как здесь получить уже обновленный список заметок
     const notesWithoutRemovedNote = notesList?.filter(
       (note) => note.id !== removedNote.id
     );
@@ -69,17 +70,19 @@ export const Notes: FC<INotesProps> = ({ getEditableNote, setEditModal }) => {
       ) : (
         <Tags getTagForFilter={getTagForFilter} />
       )}
-      <button onClick={() => setProcessedNotes(notesList)}>Сбросить фильтр</button>
+      {isTagError && <h1>Ошибка загрузки тегов...</h1>}
+      <button className={classNames(styles.notes__btn)} onClick={() => setProcessedNotes(notesList)}>Сбросить фильтр</button>
       {isLoading ? (
         <h1>Идет загрузка...</h1>
-      ) : (
-        <NotesList
+        ) : (
+          <NotesList
           notesList={processedNotes}
           removeTagsOfRemovedNote={removeTagsOfRemovedNote}
           setEditModal={setEditModal}
           getEditableNote={getEditableNote}
-        />
-      )}
+          />
+          )}
+      {isError && <h1>Ошибка загрузки заметок...</h1>}
     </>
   );
 };

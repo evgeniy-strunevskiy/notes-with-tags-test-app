@@ -52,7 +52,6 @@
     ]
   },
   "devDependencies": {
-    "@types/uniqid": "^5.3.2",
-    "typescript-plugin-css-modules": "^5.0.0"
+    "@types/uniqid": "^5.3.2"
   }
 }

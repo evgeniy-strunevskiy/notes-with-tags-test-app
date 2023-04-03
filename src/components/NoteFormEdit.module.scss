@@ -1,7 +1,27 @@
+
 .form {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.form__form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form__tags {
+  font-size: 12px;
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.form__tag {
+  border-radius: 10px;
+  padding: 4px 5px;
+  background: var(--color-olive);
 }
 
 .form__input {

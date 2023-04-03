@@ -150,6 +150,7 @@ address {
 }
 
 .wrapper {
+  width: 50%;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -159,7 +160,7 @@ address {
 
 .wrapper__btn {
   background-color: var(--color-Moccasin);
-  padding: 10px;
+  padding: 20px;
   border-radius: 10px;
   transition: 0.2s ease-in-out;
   &:hover {

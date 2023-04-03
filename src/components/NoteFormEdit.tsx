@@ -1,7 +1,7 @@
 import React, { FC, useState } from "react";
 import { useGetNotesQuery, useUpdateNoteMutation } from "../api/notesApi";
 import classnames from "classnames";
-import styles from "./NoteForm.module.scss";
+import styles from "./NoteFormEdit.module.scss";
 import {
   useAddTagsMutation,
   useDeleteTagsMutation,
@@ -33,13 +33,6 @@ export const NoteFormEdit: FC<INoteFormEditProps> = ({
   const updateNote = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    //Нужно сравнить старый список тегов и новый:
-    //Новые теги добавлены
-    //Какие теги удалены
-    //Какие теги остались
-
-    //Разные id у тегов
-
     const namesOfEditedTags = editableNote.text.match(/#\S*/gi);
 
     let listUniqueTagsRemovedFromNote: ITag[] | undefined = [];
@@ -62,8 +55,6 @@ export const NoteFormEdit: FC<INoteFormEditProps> = ({
       listUniqueTagsRemovedFromNote = tagsList?.filter((tag) =>
         uniqueNamesOfTagsRemovedFromNote?.includes(tag.text)
       );
-
-      //------------------------------------
 
       const namesOfTagsAddedToNote = namesOfEditedTags.filter((tag) =>
       !note?.tags?.includes(tag)
@@ -113,8 +104,11 @@ export const NoteFormEdit: FC<INoteFormEditProps> = ({
   };
 
   return (
-    <>
-      <form onSubmit={updateNote} className={classnames(styles.form)}>
+    <div className={classnames(styles.form)}>
+      <ul className={classnames(styles.form__tags)}>
+        {note.tags?.map(tag => <li className={classnames(styles.form__tag)} key={tag}>{tag}</li>)}
+      </ul>
+      <form onSubmit={updateNote} className={classnames(styles.form__form)}>
         <input
           required
           className={classnames(styles.form__input)}
@@ -138,6 +132,6 @@ export const NoteFormEdit: FC<INoteFormEditProps> = ({
           Редактировать пост
         </button>
       </form>
-    </>
+    </div>
   );
 };

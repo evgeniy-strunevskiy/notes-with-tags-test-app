@@ -1,2 +1,11 @@
-
-
+.notes__btn {
+  padding: 15px;
+  background-color: var(--color-Moccasin);
+  border-radius: 10px;
+  &:hover {
+    background-color: var(--color-salmon);
+  }
+  &:active   {
+    background-color: var(--color-Khaki);
+  }
+}

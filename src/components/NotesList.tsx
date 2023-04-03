@@ -1,8 +1,8 @@
 import React, { FC } from "react";
-import { INote } from "../../../types/noteTypes";
 import styles from "./NotesList.module.scss";
 import classNames from "classnames";
-import { Note } from "../../Note";
+import { INote } from "../types/noteTypes";
+import { Note } from "./Note";
 
 interface INotesListProps {
   notesList: INote[] | undefined;
@@ -20,7 +20,7 @@ export const NotesList: FC<INotesListProps> = ({
   return (
     <ul className={classNames(styles.notes)}>
       {notesList?.map((note) => (
-        <li className={classNames(styles.notes__item)} key={note.id}>
+        <li key={note.id}>
           <Note
             removeTagsOfRemovedNote={removeTagsOfRemovedNote}
             setEditModal={setEditModal}

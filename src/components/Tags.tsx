@@ -9,7 +9,7 @@ interface ITagsProps {
 }
 
 export const Tags: FC<ITagsProps> = ({getTagForFilter}) => {
-  const { data: tagsList, isLoading } = useGetTagsQuery();
+  const { data: tagsList, isLoading, isError } = useGetTagsQuery();
 
   return (
     <div className="">
@@ -22,6 +22,7 @@ export const Tags: FC<ITagsProps> = ({getTagForFilter}) => {
           ))}
         </ul>
       )}
+      {isError && <h1>Ошибка загрузки тегов...</h1>}
     </div>
   );
 };
